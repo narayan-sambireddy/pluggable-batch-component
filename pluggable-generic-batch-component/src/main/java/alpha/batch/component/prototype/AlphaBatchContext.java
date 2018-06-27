@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.RowMapper;
 
+import javax.sql.DataSource;
+
 
 /**
  * @author narayana
@@ -67,10 +69,12 @@ public class AlphaBatchContext {
 	@Bean
 	@StepScope
 	public <S> JdbcCursorItemReader<S> alphaReader(
-			RowMapper<S> alphaRowMapper,
+			DataSource dataSource,
+	        RowMapper<S> alphaRowMapper,
 			@Value("${alpha.batch.read.query}") String query,
 			@Value("${alpha.batch.read.query.fetch-size}") Integer fetchSize){
 		JdbcCursorItemReader<S> alphaReader = new JdbcCursorItemReader<>();
+		alphaReader.setDataSource(dataSource);
 		alphaReader.setSql(query);
 		alphaReader.setFetchSize(fetchSize);
 		alphaReader.setRowMapper(alphaRowMapper);

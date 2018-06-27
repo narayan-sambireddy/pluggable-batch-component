@@ -15,7 +15,7 @@ import java.util.Properties;
  * @author narayana
  */
 @Service
-public class AlphaBatchScheduler {
+class AlphaBatchScheduler {
 
     private JobLauncher jobLauncher;
     private Job endOfDayJob;

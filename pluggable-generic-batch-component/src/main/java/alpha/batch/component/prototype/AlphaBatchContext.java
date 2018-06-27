@@ -84,7 +84,7 @@ public class AlphaBatchContext {
 			@Value("${alpha.batch.write.file.delimiter}") String delimiter,
 			@Value("${alpha.batch.write.file.field-names}") String[] fieldNames) {
 		FlatFileItemWriter<D> alphaWriter = new FlatFileItemWriter<>();
-		alphaWriter.setResource(new FileSystemResource(filePath));
+		alphaWriter.setResource(new FileSystemResource(filePath + "_" + System.currentTimeMillis() + ".txt"));
 		alphaWriter.setAppendAllowed(true);
 		alphaWriter.setLineAggregator(new DelimitedLineAggregator<D>() {{
 			setDelimiter(delimiter);

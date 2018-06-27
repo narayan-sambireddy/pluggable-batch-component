@@ -68,8 +68,8 @@ public class AlphaBatchContext {
 	@StepScope
 	public <S> JdbcCursorItemReader<S> alphaReader(
 			RowMapper<S> alphaRowMapper,
-			@Value("${alpha.batch.query}") String query,
-			@Value("${alpha.batch.query.fetch-size}") Integer fetchSize){
+			@Value("${alpha.batch.read.query}") String query,
+			@Value("${alpha.batch.read.query.fetch-size}") Integer fetchSize){
 		JdbcCursorItemReader<S> alphaReader = new JdbcCursorItemReader<>();
 		alphaReader.setSql(query);
 		alphaReader.setFetchSize(fetchSize);
@@ -86,7 +86,7 @@ public class AlphaBatchContext {
 		FlatFileItemWriter<D> alphaWriter = new FlatFileItemWriter<>();
 		alphaWriter.setResource(new FileSystemResource(filePath));
 		alphaWriter.setAppendAllowed(true);
-		alphaWriter.setLineAggregator(new DelimitedLineAggregator<>() {{
+		alphaWriter.setLineAggregator(new DelimitedLineAggregator<D>() {{
 			setDelimiter(delimiter);
 			setFieldExtractor(new BeanWrapperFieldExtractor() {{
 				setNames(fieldNames);

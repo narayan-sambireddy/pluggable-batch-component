@@ -10,6 +10,7 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -50,6 +51,17 @@ public class AlphaBatchContext {
 				.get("prepareFile")
 					.<S, D>chunk(5).reader(alphaReader).writer(alphaWriter)
 				.build();
+	}
+
+	@Bean
+	@JobScope
+	public Step transferFile() {
+		return steps
+				.get("transferFile")
+					.tasklet((sc, cc) -> {
+						System.out.println("---------- transferring file ------------");
+						return RepeatStatus.FINISHED;
+					}).build();
 	}
 
 	@Bean

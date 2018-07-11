@@ -16,15 +16,15 @@ import java.util.Properties;
 /**
  *
  * @author narayana
- * 
+ *
  */
 @Service
 public class EODBatchScheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EODBatchScheduler.class);
 
-    private Job eodJob;
-    private JobLauncher eodJobLauncher;
+    private final Job eodJob;
+    private final JobLauncher eodJobLauncher;
 
     @Value("${batch.job.params}")
     private Properties jobParams;

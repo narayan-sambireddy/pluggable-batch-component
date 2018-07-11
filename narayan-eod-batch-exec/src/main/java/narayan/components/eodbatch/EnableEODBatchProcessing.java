@@ -1,10 +1,8 @@
 package narayan.components.eodbatch;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,9 +17,7 @@ import java.lang.annotation.Target;
  */
 @Configuration
 @ComponentScan
-@EnableScheduling
-@EnableBatchProcessing
-@Import(EODBatchContext.class)
+@Import({EODBatchContext.class, EODBatchScheduler.class})
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnableEODBatchProcessing {

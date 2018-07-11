@@ -19,7 +19,7 @@ import java.util.Properties;
  *
  */
 @Service
-public class EODBatchScheduler {
+class EODBatchScheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EODBatchScheduler.class);
 

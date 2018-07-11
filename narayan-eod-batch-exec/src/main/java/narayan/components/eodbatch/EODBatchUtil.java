@@ -10,7 +10,7 @@ import java.util.StringJoiner;
  * @author narayana
  *
  */
-public class EODBatchUtil {
+class EODBatchUtil {
 
     private static final DateFormat YYYYMMDDHHMMSS = new SimpleDateFormat("yyyyMMddHHmmss");
 

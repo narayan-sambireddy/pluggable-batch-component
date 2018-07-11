@@ -35,10 +35,12 @@ class EODBatchContext {
 
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
+    private final EODBatchProperties props;
 
-    public EODBatchContext(JobBuilderFactory jobs, StepBuilderFactory steps) {
+    public EODBatchContext(JobBuilderFactory jobs, StepBuilderFactory steps, EODBatchProperties props) {
         this.jobs = jobs;
         this.steps = steps;
+        this.props = props;
     }
 
     @Bean
@@ -53,11 +55,10 @@ class EODBatchContext {
 
     @Bean
     @JobScope
-    public <S,D> Step prepareFile(ItemReader<S> alphaReader, ItemWriter<D> alphaWriter,
-            @Value("${batch.chunk.commit-interval}") Integer commitInterval) {
+    public <S,D> Step prepareFile(ItemReader<S> alphaReader, ItemWriter<D> alphaWriter) {
         return steps
                 .get("prepareFile")
-                    .<S,D>chunk(commitInterval)
+                    .<S,D>chunk(props.getCommitInterval())
                         .reader(alphaReader)
                         .writer(alphaWriter)
                     .build();
@@ -75,40 +76,32 @@ class EODBatchContext {
     @Bean
     @StepScope
     public <S> JdbcCursorItemReader<S> alphaReader(
-            DataSource dataSource, RowMapper<S> alphaRowMapper, PreparedStatementSetter alphaPSS,
-            @Value("${fetch.data.sql}") String fetchDataSql, @Value("${fetch.data.size}") Integer fetchDataSize) {
+            DataSource dataSource, RowMapper<S> alphaRowMapper, PreparedStatementSetter alphaPSS) {
         return new JdbcCursorItemReader<S>() {{
             setDataSource(dataSource);
             setRowMapper(alphaRowMapper);
-            setSql(fetchDataSql);
+            setSql(props.getSql());
             setPreparedStatementSetter(alphaPSS);
-            setFetchSize(fetchDataSize);
+            setFetchSize(props.getFetchSize());
         }};
     }
 
 
     @Bean
     @StepScope
-    public <D> FlatFileItemWriter<D> alphaWriter(
-            @Value("${target.file.path}") final String targetFilePath,
-            @Value("${target.file.name.prefix}") final String targetFileNamePrefix,
-            @Value("${batch.file.delimiter}") final String delimiter,
-            @Value("${batch.file.fields.list}") final String[] batchFileFieldsList,
-            @Value("${batch.file.header.marker}") final String headerMarker,
-            @Value("${batch.file.footer.marker}") final String footerMarker,
-            @Value("#{stepExecution}") final StepExecution context) {
+    public <D> FlatFileItemWriter<D> alphaWriter(@Value("#{stepExecution}") final StepExecution context) {
         final String nowInISO = nowInISO();
-        final String fileName = getFileName(targetFileNamePrefix, nowInISO);
-        final String fileAbsolutePath = getFileAbsolutePath(targetFilePath, fileName);
+        final String fileName = getFileName(props.getFileNamePrefix(), nowInISO);
+        final String fileAbsolutePath = getFileAbsolutePath(props.getFilePath(), fileName);
         return new FlatFileItemWriter<D>() {{
-            setHeaderCallback((writer) -> writer.write(prepareHeader(delimiter, headerMarker, fileName, nowInISO)));
-            setFooterCallback((writer) -> writer.write(prepareFooter(delimiter, footerMarker, context.getWriteCount())));
+            setHeaderCallback((writer) -> writer.write(prepareHeader(props.getDelimiter(), props.getHeaderMarker(), fileName, nowInISO)));
+            setFooterCallback((writer) -> writer.write(prepareFooter(props.getDelimiter(), props.getFooterMarker(), context.getWriteCount())));
             setAppendAllowed(false);
             setResource(new FileSystemResource(fileAbsolutePath));
             setLineAggregator(new DelimitedLineAggregator<D>() {{
-                setDelimiter(delimiter);
+                setDelimiter(props.getDelimiter());
                 setFieldExtractor(new BeanWrapperFieldExtractor<D>() {{
-                    setNames(batchFileFieldsList);
+                    setNames(props.getFieldsList());
                 }});
             }});
         }};

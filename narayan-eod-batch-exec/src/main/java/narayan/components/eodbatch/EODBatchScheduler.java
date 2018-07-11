@@ -26,7 +26,7 @@ class EODBatchScheduler {
     private final Job eodJob;
     private final JobLauncher eodJobLauncher;
 
-    @Value("${batch.job.params}")
+    @Value("${eodbatch.job-params}")
     private Properties jobParams;
 
     public EODBatchScheduler(Job eodJob, JobLauncher eodJobLauncher) {
@@ -34,7 +34,7 @@ class EODBatchScheduler {
         this.eodJobLauncher = eodJobLauncher;
     }
 
-    @Scheduled(cron = "${batch.scheduler.cron}")
+    @Scheduled(cron = "${eodbatch.scheduler-cron}")
     public void launchEodJob() throws Exception {
         JobParametersBuilder paramBuilder = new JobParametersBuilder(jobParams);
         paramBuilder.addDate("RUN-TIME", new Date());
